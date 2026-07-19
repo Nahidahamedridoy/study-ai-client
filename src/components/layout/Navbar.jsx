@@ -6,7 +6,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { authClient, useSession } from '@/lib/auth-client';
 import Button from '@/components/ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, BrainCircuit, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, X, BrainCircuit } from 'lucide-react';
+import UserDropdown from './UserDropdown';
 
 const publicNavLinks = [
   { name: 'Home', href: '/' },
@@ -26,16 +27,6 @@ export default function Navbar() {
   
   const { data: session, isPending } = useSession();
 
-  const handleLogout = async () => {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          router.push('/login');
-        },
-      },
-    });
-  };
-
   const navLinks = session ? privateNavLinks : publicNavLinks;
 
   return (
@@ -45,7 +36,7 @@ export default function Navbar() {
           <div className="flex items-center">
             <Link href="/" className="flex flex-shrink-0 items-center gap-2 group">
               <BrainCircuit className="text-primary-600 transition-transform group-hover:rotate-12 duration-300" size={28} />
-              <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">StudyMate <span className="text-gradient">AI</span></span>
+              <span className="text-xl text-purple-500 font-bold tracking-tight text-gray-900 dark:text-white">StudyMate <span className="text-gradient">AI</span></span>
             </Link>
           </div>
           
@@ -77,16 +68,9 @@ export default function Navbar() {
             
             <div className="flex items-center pl-6 ml-2 border-l border-gray-200 dark:border-gray-800">
                 {isPending ? (
-                  <div className="w-24 h-9 bg-gray-200 dark:bg-gray-800 animate-pulse rounded-xl"></div>
+                  <div className="w-10 h-10 bg-gray-200 dark:bg-gray-800 animate-pulse rounded-full"></div>
                 ) : session ? (
-                  <Button
-                    variant="ghost"
-                    onClick={handleLogout}
-                    className="flex items-center gap-2 text-gray-600 hover:text-rose-600 dark:text-gray-300 dark:hover:text-rose-400 px-3"
-                  >
-                    <LogOut size={16} />
-                    Logout
-                  </Button>
+                  <UserDropdown session={session} />
                 ) : (
                   <div className="flex items-center space-x-3">
                     <Link href="/login">
@@ -100,8 +84,13 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Mobile menu button */}
-          <div className="flex items-center md:hidden">
+          {/* Mobile right section */}
+          <div className="flex items-center gap-3 md:hidden">
+            {isPending ? (
+              <div className="w-8 h-8 bg-gray-200 dark:bg-gray-800 animate-pulse rounded-full"></div>
+            ) : session ? (
+              <UserDropdown session={session} />
+            ) : null}
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none transition-colors"
@@ -141,19 +130,8 @@ export default function Navbar() {
                 )
               })}
               
-              <div className="pt-6 mt-6 border-t border-gray-200/50 dark:border-gray-800/50">
-                {!isPending && session ? (
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsOpen(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-4 py-3 rounded-xl text-base font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-900/20 transition-colors"
-                  >
-                    <LogOut size={20} />
-                    Logout
-                  </button>
-                ) : !isPending ? (
+              {!isPending && !session && (
+                <div className="pt-6 mt-6 border-t border-gray-200/50 dark:border-gray-800/50">
                   <div className="flex flex-col gap-3">
                     <Link href="/login" onClick={() => setIsOpen(false)}>
                         <Button variant="ghost" className="w-full justify-start py-3">Sign In</Button>
@@ -162,8 +140,8 @@ export default function Navbar() {
                         <Button variant="primary" className="w-full justify-center py-3">Get Started</Button>
                     </Link>
                   </div>
-                ) : null}
-              </div>
+                </div>
+              )}
             </div>
           </motion.div>
         )}

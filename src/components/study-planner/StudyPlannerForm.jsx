@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, BookOpen, Target, Clock, Calendar, BarChart3, Loader2 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import Textarea from '@/components/ui/Textarea';
 
 const STEPS = [
     { id: 'subject', label: 'Subject', icon: BookOpen },
@@ -213,12 +214,11 @@ export default function StudyPlannerForm({ onGenerate, isLoading }) {
                                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">What's your study goal?</h2>
                                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Be specific about what you want to achieve</p>
                                 </div>
-                                <textarea
+                                <Textarea
                                     value={formData.goal}
                                     onChange={(e) => updateForm('goal', e.target.value)}
                                     placeholder="e.g., Pass the final exam with an A, master calculus fundamentals, prepare for the GRE..."
                                     rows={4}
-                                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 resize-none transition-all"
                                 />
                                 <div className="flex flex-wrap gap-2">
                                     {['Ace the final exam', 'Build strong foundations', 'Prepare for certification', 'Improve grades'].map(suggestion => (

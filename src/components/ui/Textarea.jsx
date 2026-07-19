@@ -1,10 +1,11 @@
 import { forwardRef } from "react";
 
-const Input = forwardRef(({ className = "", error, ...props }, ref) => {
+const Textarea = forwardRef(({ className = "", error, rows = 4, ...props }, ref) => {
   return (
     <div className="w-full">
-      <input
+      <textarea
         ref={ref}
+        rows={rows}
         className={`
           w-full
           rounded-xl
@@ -16,21 +17,16 @@ const Input = forwardRef(({ className = "", error, ...props }, ref) => {
           text-gray-900
           placeholder:text-gray-400
           outline-none
+          resize-none
           transition-all
           focus:ring-2
-          disabled:opacity-50
-          disabled:cursor-not-allowed
           dark:bg-gray-900
           dark:text-white
           dark:placeholder:text-gray-500
-          dark:disabled:opacity-40
-          [&:-webkit-autofill]:[-webkit-text-fill-color:#111827]
-          [&:-webkit-autofill]:[background-clip:content-box]
-          dark:[&:-webkit-autofill]:[-webkit-text-fill-color:#f9fafb]
           ${
             error
               ? "border-red-500 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-900/40"
-              : "border-gray-300 dark:border-gray-700 focus:border-indigo-500 focus:ring-indigo-200 dark:focus:ring-indigo-900/40 hover:border-gray-400 dark:hover:border-gray-600"
+              : "border-gray-300 dark:border-gray-700 focus:border-indigo-500 focus:ring-indigo-200 dark:focus:ring-indigo-900/40"
           }
           ${className}
         `}
@@ -46,6 +42,6 @@ const Input = forwardRef(({ className = "", error, ...props }, ref) => {
   );
 });
 
-Input.displayName = "Input";
+Textarea.displayName = "Textarea";
 
-export default Input;
+export default Textarea;

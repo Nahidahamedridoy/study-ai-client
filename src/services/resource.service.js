@@ -40,8 +40,8 @@ export const fetchDashboardStats = () =>
  * Fetch the current user's own resources.
  * GET /resources/my?page=&limit=
  */
-export const fetchMyResources = ({ page = 1, limit = 10 } = {}) =>
-    apiFetch(`/resources/my?page=${page}&limit=${limit}`);
+export const fetchMyResources = ({ email, page = 1, limit = 10 } = {}) =>
+    apiFetch(`/resources/my?createdBy=${encodeURIComponent(email)}&page=${page}&limit=${limit}`);
 
 /**
  * Create a new resource.
@@ -52,10 +52,10 @@ export const createResource = (data) =>
 
 /**
  * Update a resource by ID.
- * PATCH /resources/:id
+ * PUT /resources/:id
  */
 export const updateResource = (id, data) =>
-    apiFetch(`/resources/${id}`, { method: 'PATCH', body: JSON.stringify(data) });
+    apiFetch(`/resources/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 
 /**
  * Delete a resource by ID.

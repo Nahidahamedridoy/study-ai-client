@@ -1,8 +1,9 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useMutation } from '@tanstack/react-query';
-import { createResource } from '@/services/resource.service';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { updateResource, fetchResourceById } from '@/services/resource.service';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -12,6 +13,7 @@ import Select from '@/components/ui/Select';
 import { Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { useRouter, useParams } from 'next/navigation';
 
 const CATEGORIES = [
   'Computer Science',
@@ -28,8 +30,11 @@ const CATEGORIES = [
 
 const LEVELS = ['Beginner', 'Intermediate', 'Advanced'];
 
-export default function AddResourcePage() {
-  const { session } = useAuthGuard();
+export default function EditResourcePage() {
+  useAuthGuard();
+  const router = useRouter();
+  const params = useParams();
+  const id = params?.id;
 
   const {
     register,
@@ -46,24 +51,40 @@ export default function AddResourcePage() {
     },
   });
 
+  const { data: resource, isLoading: isFetching } = useQuery({
+    queryKey: ['resource', id],
+    queryFn: () => fetchResourceById(id),
+    enabled: !!id,
+  });
+
+  useEffect(() => {
+    if (resource) {
+      reset({
+        title: resource.title || '',
+        description: resource.description || '',
+        category: resource.category || '',
+        level: resource.level || '',
+        tags: resource.tags ? resource.tags.join(', ') : '',
+      });
+    }
+  }, [resource, reset]);
+
   const { mutate, isPending } = useMutation({
-    mutationFn: (data) => createResource(data),
+    mutationFn: (data) => updateResource(id, data),
 
     onSuccess: () => {
-      toast.success('Resource created successfully!');
-      reset();
+      toast.success('Resource updated successfully!');
+      router.push('/dashboard/manage-resources');
     },
 
     onError: (err) => {
-      toast.error(err?.message || 'Failed to create resource');
+      toast.error(err?.message || 'Failed to update resource');
     },
   });
 
   const onSubmit = (data) => {
     mutate({
       ...data,
-      shortDescription: data.description.length > 150 ? data.description.substring(0, 150) + '...' : data.description,
-      createdBy: session?.user?.email || session?.email,
       tags: data.tags
         .split(',')
         .map((tag) => tag.trim())
@@ -71,15 +92,23 @@ export default function AddResourcePage() {
     });
   };
 
+  if (isFetching) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-sky-500" />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-3xl p-6 mx-auto">
       <motion.div
         initial={{ opacity: 0, y: -15 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h1 className="text-3xl font-bold text-primary-600 dark:text-primary-400">Add Resource</h1>
+        <h1 className="text-3xl font-bold text-primary-600 dark:text-primary-400">Edit Resource</h1>
         <p className="text-gray-500 dark:text-gray-400 mt-2">
-          Share your study materials with everyone.
+          Update the details of your study material.
         </p>
       </motion.div>
 
@@ -94,7 +123,6 @@ export default function AddResourcePage() {
             className="space-y-6"
           >
             {/* Title */}
-
             <div>
               <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
                 Title *
@@ -115,7 +143,6 @@ export default function AddResourcePage() {
             </div>
 
             {/* Description */}
-
             <div>
               <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
                 Description *
@@ -129,11 +156,9 @@ export default function AddResourcePage() {
                   required: 'Description is required',
                 })}
               />
-
             </div>
 
             {/* Category */}
-
             <div>
               <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
                 Category *
@@ -155,7 +180,6 @@ export default function AddResourcePage() {
             </div>
 
             {/* Level */}
-
             <div>
               <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
                 Level *
@@ -177,7 +201,6 @@ export default function AddResourcePage() {
             </div>
 
             {/* Tags */}
-
             <div>
               <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
                 Tags
@@ -194,7 +217,6 @@ export default function AddResourcePage() {
             </div>
 
             {/* Submit */}
-
             <Button
               type="submit"
               disabled={isPending}
@@ -208,8 +230,8 @@ export default function AddResourcePage() {
               )}
 
               {isPending
-                ? 'Creating Resource...'
-                : 'Create Resource'}
+                ? 'Updating Resource...'
+                : 'Update Resource'}
             </Button>
           </form>
         </Card>

@@ -53,10 +53,12 @@ export default function ManageResourcesPage() {
     const [toDelete, setToDelete] = useState(null);
     const LIMIT = 10;
 
+    const email = session?.user?.email || session?.email;
+
     const { data, isLoading, isError } = useQuery({
-        queryKey: ['my-resources', page],
-        queryFn: () => fetchMyResources({ page, limit: LIMIT }),
-        enabled: !!session,
+        queryKey: ['my-resources', page, email],
+        queryFn: () => fetchMyResources({ email, page, limit: LIMIT }),
+        enabled: !!session && !!email,
         keepPreviousData: true,
     });
 
@@ -125,18 +127,18 @@ export default function ManageResourcesPage() {
                     ) : (
                         <div className="divide-y divide-gray-100 dark:divide-gray-800">
                             {resources.map(res => (
-                                <div key={res._id} className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr_auto] gap-3 md:gap-4 items-center px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+                                <div key={res._id} className="group grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr_auto] gap-3 md:gap-4 items-center px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
                                     <div className="min-w-0">
-                                        <p className="font-semibold text-gray-900 dark:text-white truncate">{res.title}</p>
-                                        <p className="text-xs text-gray-400 md:hidden">{res.category} · {formatDate(res.createdAt)}</p>
+                                        <p className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">{res.title}</p>
+                                        <p className="text-xs text-gray-400 md:hidden group-hover:text-blue-400 transition-colors">{res.category} · {formatDate(res.createdAt)}</p>
                                     </div>
-                                    <span className="hidden md:block text-sm text-gray-600 dark:text-gray-400 truncate">{res.category}</span>
-                                    <span className={`hidden md:inline-flex w-fit text-xs font-semibold px-2.5 py-1 rounded-full ${LEVEL_COLORS[res.level] ?? LEVEL_COLORS.Beginner}`}>
+                                    <span className="hidden md:block text-sm text-gray-600 dark:text-gray-400 group-hover:text-blue-500 dark:group-hover:text-blue-300 transition-colors truncate">{res.category}</span>
+                                    <span className={`hidden md:inline-flex w-fit text-xs font-semibold px-2.5 py-1 rounded-full transition-colors group-hover:shadow-sm ${LEVEL_COLORS[res.level] ?? LEVEL_COLORS.Beginner}`}>
                                         {res.level}
                                     </span>
-                                    <span className="hidden md:block text-sm text-gray-500 dark:text-gray-400">{formatDate(res.createdAt)}</span>
+                                    <span className="hidden md:block text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-500 dark:group-hover:text-blue-300 transition-colors">{formatDate(res.createdAt)}</span>
                                     <div className="flex items-center gap-2">
-                                        <Link href={`/resources/${res._id}`} target="_blank">
+                                        <Link href={`/dashboard/edit-resource/${res._id}`}>
                                             <button className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors" title="Edit">
                                                 <Pencil size={16} />
                                             </button>

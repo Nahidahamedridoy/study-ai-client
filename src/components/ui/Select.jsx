@@ -1,9 +1,9 @@
 import { forwardRef } from "react";
 
-const Input = forwardRef(({ className = "", error, ...props }, ref) => {
+const Select = forwardRef(({ className = "", error, children, ...props }, ref) => {
   return (
     <div className="w-full">
-      <input
+      <select
         ref={ref}
         className={`
           w-full
@@ -14,28 +14,27 @@ const Input = forwardRef(({ className = "", error, ...props }, ref) => {
           text-sm
           bg-white
           text-gray-900
-          placeholder:text-gray-400
           outline-none
           transition-all
+          cursor-pointer
           focus:ring-2
-          disabled:opacity-50
-          disabled:cursor-not-allowed
           dark:bg-gray-900
           dark:text-white
-          dark:placeholder:text-gray-500
-          dark:disabled:opacity-40
-          [&:-webkit-autofill]:[-webkit-text-fill-color:#111827]
-          [&:-webkit-autofill]:[background-clip:content-box]
-          dark:[&:-webkit-autofill]:[-webkit-text-fill-color:#f9fafb]
+          [&>option]:bg-white
+          [&>option]:text-gray-900
+          dark:[&>option]:bg-gray-800
+          dark:[&>option]:text-gray-100
           ${
             error
               ? "border-red-500 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-900/40"
-              : "border-gray-300 dark:border-gray-700 focus:border-indigo-500 focus:ring-indigo-200 dark:focus:ring-indigo-900/40 hover:border-gray-400 dark:hover:border-gray-600"
+              : "border-gray-300 dark:border-gray-700 focus:border-indigo-500 focus:ring-indigo-200 dark:focus:ring-indigo-900/40"
           }
           ${className}
         `}
         {...props}
-      />
+      >
+        {children}
+      </select>
 
       {error && (
         <p className="mt-1 text-xs text-red-500">
@@ -46,6 +45,6 @@ const Input = forwardRef(({ className = "", error, ...props }, ref) => {
   );
 });
 
-Input.displayName = "Input";
+Select.displayName = "Select";
 
-export default Input;
+export default Select;

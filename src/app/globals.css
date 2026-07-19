@@ -1,5 +1,8 @@
 @import "tailwindcss";
-@import "@heroui/styles"; 
+@import "@heroui/styles";
+
+/* Enable class-based dark mode for Tailwind v4 */
+@variant dark (&:where(.dark, .dark *));
 
 @theme {
   --color-primary-50: #eef2ff;
@@ -228,6 +231,55 @@ body.dark {
   height: 100vh;
   overflow: hidden;
 }
+
+/* ────────────────────────────────────────────────────────────
+   Global Form Element Theme Reset
+   Fixes: invisible text, unreadable selects, bad autofill colour
+   ──────────────────────────────────────────────────────────── */
+
+/* Light mode base */
+input, textarea, select {
+  color: #111827;           /* gray-900 */
+  background-color: #ffffff;
+}
+
+/* Dark mode base — applies when .dark class is on <html> */
+.dark input,
+.dark textarea,
+.dark select {
+  color: #f9fafb;           /* gray-50  */
+  background-color: #111827; /* gray-900 */
+}
+
+/* Fix <select> <option> in dark mode (browser renders these natively) */
+.dark option {
+  background-color: #1f2937; /* gray-800 */
+  color: #f9fafb;
+}
+
+/* Autofill override — prevents browser yellow/white flash in dark mode */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: #111827;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark textarea:-webkit-autofill,
+.dark select:-webkit-autofill {
+  -webkit-text-fill-color: #f9fafb;
+  -webkit-box-shadow: 0 0 0 1000px #111827 inset;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Markdown content styles
+   ──────────────────────────────────────────────────────────── */
 
 /* Markdown content styles */
 .markdown-content pre {
