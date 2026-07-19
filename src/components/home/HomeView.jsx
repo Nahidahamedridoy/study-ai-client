@@ -12,10 +12,10 @@ export default function HomeView() {
     return (
         <>
             <HeroSection />
+            <CategoriesSection />
             <FeaturesSection />
             <LatestResources />
             <StatsSection />
-            <CategoriesSection />
             <HowItWorks />
             <Testimonials />
             <FAQSection />

@@ -1,27 +1,248 @@
 @import "tailwindcss";
 @import "@heroui/styles"; 
 
+@theme {
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-400: #818cf8;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
+
+  --color-secondary-50: #f5f3ff;
+  --color-secondary-100: #ede9fe;
+  --color-secondary-200: #ddd6fe;
+  --color-secondary-300: #c4b5fd;
+  --color-secondary-400: #a78bfa;
+  --color-secondary-500: #8b5cf6;
+  --color-secondary-600: #7c3aed;
+  --color-secondary-700: #6d28d9;
+  --color-secondary-800: #5b21b6;
+  --color-secondary-900: #4c1d95;
+
+  --color-accent-50: #ecfeff;
+  --color-accent-100: #cffafe;
+  --color-accent-200: #a5f3fc;
+  --color-accent-300: #67e8f9;
+  --color-accent-400: #22d3ee;
+  --color-accent-500: #06b6d4;
+  --color-accent-600: #0891b2;
+  --color-accent-700: #0e7490;
+  --color-accent-800: #155e75;
+  --color-accent-900: #164e63;
+
+  --color-success: #22c55e;
+  --color-error: #ef4444;
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  color-scheme: light dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: white;
+  color: #111827;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dark body,
+body.dark {
+  background: #030712;
+  color: #f9fafb;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #030712;
+    color: #f9fafb;
+  }
+}
+
+/* Glassmorphism Utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass {
+    background: rgba(15, 23, 42, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+}
+
+.dark .glass {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Animated Gradient Text */
+.text-gradient {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(to right, #4f46e5, #06b6d4);
+}
+
+/* Abstract Blobs Animation */
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Shimmer / Skeleton Animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(229, 231, 235, 0) 0%,
+    rgba(229, 231, 235, 0.6) 50%,
+    rgba(229, 231, 235, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+@media (prefers-color-scheme: dark) {
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(55, 65, 81, 0) 0%,
+      rgba(55, 65, 81, 0.5) 50%,
+      rgba(55, 65, 81, 0) 100%
+    );
+    background-size: 200% 100%;
+  }
+}
+
+.dark .skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(55, 65, 81, 0) 0%,
+    rgba(55, 65, 81, 0.5) 50%,
+    rgba(55, 65, 81, 0) 100%
+  );
+  background-size: 200% 100%;
+}
+
+/* Sidebar collapsed transition */
+.sidebar-transition {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.2s ease;
+}
+
+/* Glass sidebar dark variant */
+.glass-sidebar {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-right: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass-sidebar {
+    background: rgba(15, 23, 42, 0.72);
+    border-right: 1px solid rgba(30, 41, 59, 0.6);
+  }
+}
+
+.dark .glass-sidebar {
+  background: rgba(15, 23, 42, 0.72);
+  border-right: 1px solid rgba(30, 41, 59, 0.6);
+}
+
+/* Gradient border utility */
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--color-primary-400), var(--color-accent-400));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.gradient-border:hover::before {
+  opacity: 1;
+}
+
+/* Scrollbar styling */
+.dashboard-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dashboard-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dashboard-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 3px;
+}
+
+.dashboard-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
+
+/* Chat page specific */
+.chat-page {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Markdown content styles */
+.markdown-content pre {
+  margin: 0;
+}
+
+.markdown-content p {
+  margin: 0.25rem 0;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  padding-left: 1.25rem;
+}
+
+.markdown-content blockquote {
+  border-left-width: 3px;
 }
