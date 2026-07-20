@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   /* config options here */
-  serverExternalPackages: ['@better-auth/kysely-adapter', 'kysely', 'mongodb'],
+  serverExternalPackages: ['@better-auth/kysely-adapter', 'kysely', 'mongodb', '@better-auth/core'],
   images: {
     remotePatterns: [
       {

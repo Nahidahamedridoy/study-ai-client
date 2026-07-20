@@ -21,7 +21,7 @@ const client = await getClient();
 const db = client.db(process.env.AUTH_DB_NAME);
 
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL,
+  baseURL: process.env.BETTER_AUTH_URL?.trim(),
 
   database: mongodbAdapter(db, {
     client,
@@ -34,6 +34,7 @@ export const auth = betterAuth({
   trustedOrigins: [
     "http://localhost:3000",
     "https://studymate-ai-nine-nu.vercel.app",
+    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : [])
   ],
 
   socialProviders: {
