@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
@@ -15,6 +15,10 @@ export default function LoginView() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
+    // Where to send the user after a successful login.
+    // Falls back to /dashboard if no callbackUrl is present.
+    const callbackUrl = searchParams.get('callbackUrl') || '/';
 
     const { register, handleSubmit, formState: { errors }, setValue } = useForm();
 
@@ -30,12 +34,12 @@ export default function LoginView() {
             toast.error(error.message || 'Failed to sign in');
         } else {
             toast.success('Successfully logged in!');
-            router.push('/dashboard');
+            router.push(callbackUrl);
         }
     };
 
     const handleGoogleLogin = async () => {
-        await authClient.signIn.social({ provider: 'google', callbackURL: '/dashboard' });
+        await authClient.signIn.social({ provider: 'google', callbackURL: callbackUrl });
     };
 
     const loadDemoCredentials = () => {

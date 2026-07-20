@@ -63,3 +63,34 @@ export const updateResource = (id, data) =>
  */
 export const deleteResource = (id) =>
     apiFetch(`/resources/${id}`, { method: 'DELETE' });
+
+/**
+ * Fetch recent AI chat history.
+ * GET /api/ai/history?limit=5
+ */
+export const fetchChatHistory = ({ limit = 5 } = {}) =>
+    apiFetch(`/api/ai/history?limit=${limit}`);
+
+/**
+ * Fetch study plans (paginated).
+ * GET /study-plans?limit=1
+ */
+export const fetchStudyPlans = ({ page = 1, limit = 10 } = {}) =>
+    apiFetch(`/study-plans?page=${page}&limit=${limit}`);
+
+/**
+ * Update reaction for an AI chat message.
+ * PATCH /api/ai/history/:id/reaction
+ */
+export const updateChatReaction = (id, reaction) =>
+    apiFetch(`/api/ai/history/${id}/reaction`, {
+        method: 'PATCH',
+        body: JSON.stringify({ reaction })
+    });
+
+/**
+ * Delete a chat history.
+ * DELETE /api/ai/history/:id
+ */
+export const deleteChatHistory = (id) =>
+    apiFetch(`/api/ai/history/${id}`, { method: 'DELETE' });

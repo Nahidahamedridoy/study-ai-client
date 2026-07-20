@@ -1,6 +1,7 @@
 'use client';
 
-import { useSession, authClient } from '@/lib/auth-client';
+import { authClient } from '@/lib/auth-client';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -14,7 +15,7 @@ import Card from '@/components/ui/Card';
 import Skeleton from '@/components/ui/Skeleton';
 import {
     Mail, Calendar, ShieldCheck, LogOut,
-    Edit3, LayoutDashboard, BookOpen, AlertCircle
+    Edit3, LayoutDashboard, BookOpen
 } from 'lucide-react';
 
 const item = {
@@ -23,7 +24,7 @@ const item = {
 };
 
 export default function ProfilePage() {
-    const { data: session, isPending } = useSession();
+    const { session, isPending } = useAuthGuard();
     const router = useRouter();
 
     const { data: myResources, isLoading: loadingResources } = useQuery({
@@ -55,21 +56,8 @@ export default function ProfilePage() {
         );
     }
 
-    /* ── Not signed in ── */
-    if (!session) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-5 text-center px-4">
-                <div className="w-20 h-20 rounded-full bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center">
-                    <AlertCircle size={36} className="text-rose-500" />
-                </div>
-                <div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Not signed in</h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Please sign in to view your profile.</p>
-                </div>
-                <Link href="/login"><Button variant="primary">Go to Login</Button></Link>
-            </div>
-        );
-    }
+    /* ── Not authenticated — middleware + useAuthGuard handle the redirect ── */
+    if (!session) return null;
 
     const { user } = session;
     const initials = user.name

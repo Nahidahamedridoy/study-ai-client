@@ -13,11 +13,17 @@ const publicNavLinks = [
   { name: 'Home', href: '/' },
   { name: 'Explore', href: '/explore' },
   { name: 'About', href: '/about' },
+  { name: 'Contact', href: '/contact' },
 ];
 
 const privateNavLinks = [
-  ...publicNavLinks,
+  { name: 'Home', href: '/' },
+  { name: 'Explore', href: '/explore' },
+  { name: 'Study Planner', href: '/dashboard/study-planner' },
+  { name: 'AI Chat', href: '/dashboard/chat' },
   { name: 'Dashboard', href: '/dashboard' },
+  { name: 'About', href: '/about' },
+  { name: 'Contact', href: '/contact' },
 ];
 
 export default function Navbar() {

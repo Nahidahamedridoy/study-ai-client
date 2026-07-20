@@ -1,15 +1,14 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { fetchDashboardStats, fetchMyResources } from '@/services/resource.service';
+import { fetchDashboardStats, fetchMyResources, fetchResources, fetchChatHistory, fetchStudyPlans } from '@/services/resource.service';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import Skeleton from '@/components/ui/Skeleton';
 import { formatDate } from '@/utils/formatters';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { BookOpen, Eye, Star, TrendingUp, ArrowRight } from 'lucide-react';
+import { BookOpen, MessageSquare, Brain, TrendingUp, ArrowRight } from 'lucide-react';
 
-import StatCards from '@/components/dashboard/StatCards';
 import { WeeklyActivityChart, ResourceCategoriesChart, LearningProgressChart } from '@/components/dashboard/DashboardCharts';
 import ActivityTimeline from '@/components/dashboard/ActivityTimeline';
 import QuickActions from '@/components/dashboard/QuickActions';
@@ -31,9 +30,7 @@ function DashboardStatCard({ label, value, icon: Icon, gradient, loading }) {
             transition={{ duration: 0.3 }}
             className="bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-white/5 rounded-2xl p-5 overflow-hidden relative group cursor-default"
         >
-            {/* Subtle glow */}
             <div className={`absolute -top-14 -right-14 w-28 h-28 rounded-full bg-gradient-to-br ${gradient} opacity-[0.06] group-hover:opacity-[0.12] transition-opacity duration-500 blur-2xl`} />
-
             <div className="relative">
                 <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-lg mb-4`}>
                     <Icon size={20} className="text-white" strokeWidth={2} />
@@ -53,27 +50,83 @@ function DashboardStatCard({ label, value, icon: Icon, gradient, loading }) {
 
 export default function DashboardPage() {
     const { session } = useAuthGuard();
+    const email = session?.user?.email;
 
+    /* ─ Stats (totalResources, totalCategories, totalAIChats) ─ */
     const { data: stats, isLoading: statsLoading } = useQuery({
         queryKey: ['dashboard-stats'],
         queryFn: fetchDashboardStats,
         enabled: !!session,
     });
 
-    const { data: myResData, isLoading: resLoading } = useQuery({
-        queryKey: ['my-resources', 1],
-        queryFn: () => fetchMyResources({ page: 1, limit: 5 }),
+    /* ─ My Resources (recent 5) ─ */
+    const { data: myResData, isLoading: myResLoading } = useQuery({
+        queryKey: ['my-resources-dashboard', email],
+        queryFn: () => fetchMyResources({ email, page: 1, limit: 5 }),
+        enabled: !!email,
+    });
+
+    /* ─ All Resources (for category chart + weekly chart) ─ */
+    const { data: allResData, isLoading: allResLoading } = useQuery({
+        queryKey: ['all-resources-chart'],
+        queryFn: () => fetchResources({ limit: 200 }),
+        enabled: !!session,
+        staleTime: 5 * 60 * 1000,
+    });
+
+    /* ─ AI Chat History (recent 50 for timeline + weekly) ─ */
+    const { data: chatHistory, isLoading: chatLoading } = useQuery({
+        queryKey: ['chat-history-dashboard'],
+        queryFn: () => fetchChatHistory({ limit: 50 }),
         enabled: !!session,
     });
 
-    const myResources = myResData?.resources ?? myResData ?? [];
+    /* ─ Study Plans ─ */
+    const { data: studyPlans, isLoading: plansLoading } = useQuery({
+        queryKey: ['study-plans-dashboard'],
+        queryFn: () => fetchStudyPlans({ limit: 100 }),
+        enabled: !!session,
+    });
+
+    const myResources = Array.isArray(myResData?.resources) ? myResData.resources
+        : Array.isArray(myResData) ? myResData : [];
+
+    const allResources = Array.isArray(allResData?.resources) ? allResData.resources
+        : Array.isArray(allResData) ? allResData : [];
+
+    const chats = Array.isArray(chatHistory) ? chatHistory : [];
+    const plans = Array.isArray(studyPlans) ? studyPlans : [];
+
+    const myResourceCount = myResData?.totalResources ?? myResources.length;
 
     const statCards = [
-        { label: 'Total Resources', value: stats?.totalResources, icon: BookOpen, gradient: 'from-blue-500 to-blue-600' },
-        { label: 'Total Views', value: stats?.totalViews, icon: Eye, gradient: 'from-emerald-500 to-teal-500' },
-        { label: 'Saved by Others', value: stats?.savedCount, icon: Star, gradient: 'from-violet-500 to-purple-500' },
-        { label: 'This Month', value: stats?.monthlyAdded, icon: TrendingUp, gradient: 'from-amber-500 to-orange-500' },
+        {
+            label: 'Total Resources',
+            value: stats?.totalResources,
+            icon: BookOpen,
+            gradient: 'from-blue-500 to-blue-600',
+        },
+        {
+            label: 'My Resources',
+            value: myResourceCount,
+            icon: TrendingUp,
+            gradient: 'from-violet-500 to-purple-500',
+        },
+        {
+            label: 'AI Chats',
+            value: stats?.totalAIChats,
+            icon: MessageSquare,
+            gradient: 'from-accent-500 to-cyan-500',
+        },
+        {
+            label: 'Study Plans',
+            value: plans.length,
+            icon: Brain,
+            gradient: 'from-amber-500 to-orange-500',
+        },
     ];
+
+    const chartsLoading = allResLoading || chatLoading || plansLoading;
 
     return (
         <PageTransition>
@@ -97,21 +150,35 @@ export default function DashboardPage() {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                    {statCards.map((s, i) => (
-                        <DashboardStatCard key={s.label} {...s} loading={statsLoading} />
+                    {statCards.map((s) => (
+                        <DashboardStatCard
+                            key={s.label}
+                            {...s}
+                            loading={statsLoading || myResLoading || plansLoading}
+                        />
                     ))}
                 </div>
 
                 {/* Charts Row */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    <WeeklyActivityChart />
-                    <ResourceCategoriesChart />
-                    <LearningProgressChart />
+                    <WeeklyActivityChart
+                        resources={allResources}
+                        chats={chats}
+                        loading={chartsLoading}
+                    />
+                    <ResourceCategoriesChart
+                        resources={allResources}
+                        loading={allResLoading}
+                    />
+                    <LearningProgressChart
+                        studyPlans={plans}
+                        loading={plansLoading}
+                    />
                 </div>
 
-                {/* Bottom Row: Recent Resources + Activity */}
+                {/* Bottom Row: Recent Resources + Activity Timeline */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    {/* Recent Resources */}
+                    {/* Recent My Resources */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -132,13 +199,13 @@ export default function DashboardPage() {
                             </Link>
                         </div>
 
-                        {resLoading ? (
+                        {myResLoading ? (
                             <div className="p-5 space-y-3">
                                 {[...Array(4)].map((_, i) => (
                                     <Skeleton key={i} className="h-14 w-full rounded-xl" />
                                 ))}
                             </div>
-                        ) : !myResources.length ? (
+                        ) : myResources.length === 0 ? (
                             <div className="py-16 text-center text-gray-500 dark:text-gray-400">
                                 <BookOpen size={40} className="mx-auto mb-3 opacity-20" />
                                 <p className="font-medium text-sm">No resources yet</p>
@@ -157,32 +224,40 @@ export default function DashboardPage() {
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ duration: 0.3, delay: index * 0.05 }}
-                                        className="flex items-center justify-between px-5 py-3.5 hover:bg-gray-50/80 dark:hover:bg-white/[0.02] transition-colors group"
                                     >
-                                        <div className="min-w-0 flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary-500/10 to-accent-500/10 dark:from-primary-500/20 dark:to-accent-500/20 flex items-center justify-center flex-shrink-0">
-                                                <BookOpen size={16} className="text-primary-500 dark:text-primary-400" />
+                                        <Link
+                                            href={`/resources/${res._id}`}
+                                            className="flex items-center justify-between px-5 py-3.5 hover:bg-gray-50/80 dark:hover:bg-white/[0.02] transition-colors group"
+                                        >
+                                            <div className="min-w-0 flex items-center gap-3">
+                                                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary-500/10 to-accent-500/10 dark:from-primary-500/20 dark:to-accent-500/20 flex items-center justify-center flex-shrink-0">
+                                                    <BookOpen size={16} className="text-primary-500 dark:text-primary-400" />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="text-[13px] font-semibold text-gray-900 dark:text-white truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                                        {res.title}
+                                                    </p>
+                                                    <p className="text-[11px] text-gray-400 dark:text-gray-500">
+                                                        {res.category} · {formatDate(res.createdAt)}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div className="min-w-0">
-                                                <p className="text-[13px] font-semibold text-gray-900 dark:text-white truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                                                    {res.title}
-                                                </p>
-                                                <p className="text-[11px] text-gray-400 dark:text-gray-500">
-                                                    {res.category} · {formatDate(res.createdAt)}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <span className={`ml-4 flex-shrink-0 text-[11px] font-semibold px-2.5 py-1 rounded-full ${LEVEL_COLORS[res.level] ?? LEVEL_COLORS.Beginner}`}>
-                                            {res.level}
-                                        </span>
+                                            <span className={`ml-4 flex-shrink-0 text-[11px] font-semibold px-2.5 py-1 rounded-full ${LEVEL_COLORS[res.level] ?? LEVEL_COLORS.Beginner}`}>
+                                                {res.level}
+                                            </span>
+                                        </Link>
                                     </motion.div>
                                 ))}
                             </div>
                         )}
                     </motion.div>
 
-                    {/* Activity Timeline */}
-                    <ActivityTimeline />
+                    {/* Activity Timeline (real data) */}
+                    <ActivityTimeline
+                        resources={myResources}
+                        chats={chats.slice(0, 10)}
+                        loading={myResLoading || chatLoading}
+                    />
                 </div>
             </div>
         </PageTransition>

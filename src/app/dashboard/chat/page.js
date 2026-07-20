@@ -6,8 +6,10 @@ import { PanelLeftOpen, BrainCircuit, SendHorizonal, Square } from 'lucide-react
 import ChatSidebar from '@/components/chat/ChatSidebar';
 import ChatMessages from '@/components/chat/ChatMessages';
 import ChatEmpty from '@/components/chat/ChatEmpty';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/services/api';
+import { fetchChatHistory, updateChatReaction, deleteChatHistory } from '@/services/resource.service';
+import toast from 'react-hot-toast';
 
 function generateId() {
     return Math.random().toString(36).substring(2, 15);
@@ -16,6 +18,8 @@ function generateId() {
 export default function ChatPage() {
     const [messages, setMessages] = useState([]);
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+    const queryClient = useQueryClient();
     
     // Inline input state
     const [input, setInput] = useState('');
@@ -41,26 +45,57 @@ export default function ChatPage() {
                 setMessages(prev => [
                     ...prev,
                     {
-                        id: generateId(),
+                        id: data.chat._id || generateId(),
                         role: 'assistant',
                         content: data.chat.response,
+                        reaction: null,
                         createdAt: new Date().toISOString()
                     }
                 ]);
             }
         },
-        onError: () => {
+        onError: (error) => {
+            console.error("Chat API Error:", error.message);
             setMessages(prev => [
                 ...prev,
                 {
                     id: generateId(),
                     role: 'assistant',
-                    content: 'Sorry, I encountered an error processing your request.',
+                    content: error.message || 'Sorry, I encountered an error processing your request.',
                     createdAt: new Date().toISOString()
                 }
             ]);
         }
     });
+
+    const deleteMutation = useMutation({
+        mutationFn: deleteChatHistory,
+        onSuccess: (_, deletedId) => {
+            queryClient.invalidateQueries({ queryKey: ['chat-history-sidebar'] });
+            toast.success('Conversation deleted');
+            if (activeId === deletedId) {
+                setMessages([]);
+                setActiveId(null);
+            }
+            setDeleteConfirmId(null);
+        },
+        onError: () => {
+            toast.error('Failed to delete conversation');
+            setDeleteConfirmId(null);
+        }
+    });
+
+    const reactionMutation = useMutation({
+        mutationFn: ({ id, reaction }) => updateChatReaction(id, reaction),
+        onError: () => {
+            toast.error('Failed to save reaction');
+        }
+    });
+
+    const handleReact = useCallback((messageId, reaction) => {
+        setMessages(prev => prev.map(m => m.id === messageId ? { ...m, reaction } : m));
+        reactionMutation.mutate({ id: messageId, reaction });
+    }, [reactionMutation]);
 
     const handleSend = useCallback((content) => {
         // Show user message immediately
@@ -96,8 +131,48 @@ export default function ChatPage() {
         }
     }, [messages, chatMutation]);
 
+    // Fetch chat history
+    const { data: historyData, isLoading: historyLoading } = useQuery({
+        queryKey: ['chat-history-sidebar'],
+        queryFn: () => fetchChatHistory({ limit: 100 }),
+    });
+
+    const conversations = Array.isArray(historyData)
+        ? historyData.map(chat => ({
+              id: chat._id,
+              title: chat.prompt || 'New Chat',
+              updatedAt: chat.createdAt,
+              originalChat: chat,
+          }))
+        : [];
+
+    const [activeId, setActiveId] = useState(null);
+
+    const handleSelectChat = useCallback((id) => {
+        setActiveId(id);
+        const conv = conversations.find(c => c.id === id);
+        if (conv) {
+            setMessages([
+                {
+                    id: generateId(),
+                    role: 'user',
+                    content: conv.originalChat.prompt,
+                    createdAt: conv.originalChat.createdAt,
+                },
+                {
+                    id: conv.originalChat._id,
+                    role: 'assistant',
+                    content: conv.originalChat.response,
+                    reaction: conv.originalChat.reaction || null,
+                    createdAt: conv.originalChat.createdAt,
+                }
+            ]);
+        }
+    }, [conversations]);
+
     const handleNewChat = useCallback(() => {
         setMessages([]);
+        setActiveId(null);
     }, []);
 
     // Form submission
@@ -116,14 +191,14 @@ export default function ChatPage() {
     };
 
     return (
-        <div className="flex h-screen bg-background overflow-hidden">
+        <div className="flex h-screen bg-background overflow-hidden relative">
             {/* Chat Sidebar */}
             <ChatSidebar
-                conversations={[]} // Empty for Step 1
-                activeId={null}
-                onSelect={() => {}}
+                conversations={conversations}
+                activeId={activeId}
+                onSelect={handleSelectChat}
                 onNew={handleNewChat}
-                onDelete={() => {}}
+                onDelete={(id) => setDeleteConfirmId(id)}
                 collapsed={!sidebarOpen}
                 onToggle={() => setSidebarOpen(s => !s)}
             />
@@ -166,6 +241,7 @@ export default function ChatPage() {
                             messages={messages}
                             isStreaming={chatMutation.isPending}
                             onRegenerate={handleRegenerate}
+                            onReact={handleReact}
                         />
                     )}
                 </AnimatePresence>
@@ -210,6 +286,47 @@ export default function ChatPage() {
                     </form>
                 </div>
             </div>
+
+            {/* Delete Confirmation Modal */}
+            <AnimatePresence>
+                {deleteConfirmId && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div 
+                            initial={{ opacity: 0 }} 
+                            animate={{ opacity: 1 }} 
+                            exit={{ opacity: 0 }} 
+                            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                            onClick={() => setDeleteConfirmId(null)}
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                            className="relative bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/10 shadow-2xl rounded-2xl w-full max-w-sm p-6 overflow-hidden"
+                        >
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Delete Conversation</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Are you sure you want to delete this conversation? This action cannot be undone.</p>
+                            
+                            <div className="flex gap-3 justify-end">
+                                <button 
+                                    onClick={() => setDeleteConfirmId(null)}
+                                    className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-colors"
+                                    disabled={deleteMutation.isPending}
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    onClick={() => deleteMutation.mutate(deleteConfirmId)}
+                                    className="px-4 py-2 text-sm font-medium text-white bg-rose-500 hover:bg-rose-600 rounded-xl transition-colors flex items-center justify-center min-w-[80px]"
+                                    disabled={deleteMutation.isPending}
+                                >
+                                    {deleteMutation.isPending ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Delete'}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

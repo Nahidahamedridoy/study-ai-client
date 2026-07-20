@@ -5,7 +5,7 @@ import { AnimatePresence } from 'framer-motion';
 import ChatMessage from './ChatMessage';
 import TypingIndicator from './TypingIndicator';
 
-export default function ChatMessages({ messages, isStreaming, onRegenerate }) {
+export default function ChatMessages({ messages, isStreaming, onRegenerate, onReact }) {
     const bottomRef = useRef(null);
     const containerRef = useRef(null);
 
@@ -26,6 +26,7 @@ export default function ChatMessages({ messages, isStreaming, onRegenerate }) {
                             message={msg}
                             isLast={i === messages.length - 1 && msg.role === 'assistant'}
                             onRegenerate={msg.role === 'assistant' ? onRegenerate : undefined}
+                            onReact={onReact}
                         />
                     ))}
                     {isStreaming && <TypingIndicator key="typing" />}

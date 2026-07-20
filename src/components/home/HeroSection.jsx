@@ -60,7 +60,7 @@ export default function HeroSection() {
                         </Button>
                     </Link>
                     <Link href="/explore">
-                        <Button variant="secondary" size="lg" className="w-full sm:w-auto text-white">
+                        <Button variant="secondary" size="lg" className="w-full sm:w-auto">
                             Explore Resources
                         </Button>
                     </Link>

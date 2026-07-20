@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Check, Copy, Terminal } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 export default function CodeBlock({ code, language }) {
     const [copied, setCopied] = useState(false);
@@ -56,11 +58,20 @@ export default function CodeBlock({ code, language }) {
             </div>
 
             {/* Code */}
-            <pre className="p-4 overflow-x-auto text-[13px] leading-relaxed">
-                <code className="font-mono text-gray-300 dark:text-gray-200">
-                    {code}
-                </code>
-            </pre>
+            <SyntaxHighlighter
+                language={language || 'text'}
+                style={vscDarkPlus}
+                customStyle={{
+                    margin: 0,
+                    padding: '1rem',
+                    background: 'transparent',
+                    fontSize: '13px',
+                    lineHeight: '1.6',
+                }}
+                PreTag="div"
+            >
+                {code}
+            </SyntaxHighlighter>
         </div>
     );
 }

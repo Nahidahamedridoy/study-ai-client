@@ -1,36 +1,209 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 📚 StudyMate AI
 
-## Getting Started
+StudyMate AI is a modern AI-powered learning platform that helps students organize study resources, generate personalized study plans, and interact with an AI assistant for learning support. It provides a clean, responsive interface with secure authentication and an intelligent dashboard.
 
-First, run the development server:
+## 🌐 Live Demo
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Frontend:** https://your-frontend-url.vercel.app
+
+---
+
+## ✨ Features
+
+- 🔐 Secure Authentication (Email/Password + Google Login)
+- 🤖 AI Chat Assistant powered by Gemini AI
+- 📅 AI Study Plan Generator
+- 📚 Resource Management (Create, Update, Delete)
+- 🔍 Explore Resources with Search & Filters
+- 📖 Resource Details Page
+- 📊 Dynamic Dashboard Overview
+- 👤 User Profile Management
+- 👍👎 Like/Dislike AI Responses
+- 🗑️ Delete AI Conversations
+- 🌙 Dark & Light Theme
+- 📱 Fully Responsive Design
+- ⚡ Smooth UI with Framer Motion
+- 🚀 Fast Performance with Next.js
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+- Next.js
+- React
+- Tailwind CSS
+- Framer Motion
+- TanStack Query
+- Better Auth
+- Lucide React
+
+### Backend
+
+- Node.js
+- Express.js
+- MongoDB
+- Google Gemini AI
+- Better Auth
+- CORS
+- dotenv
+
+---
+
+## 📂 Project Structure
+
+```
+studymate-ai/
+│
+├── client/
+│   ├── app/
+│   ├── components/
+│   ├── services/
+│   ├── hooks/
+│   └── lib/
+│
+├── server/
+│   ├── controllers/
+│   ├── routes/
+│   ├── middleware/
+│   ├── config/
+│   └── utils/
+│
+└── README.md
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## ⚙️ Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Frontend (.env.local)
 
-## Learn More
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
 
-To learn more about Next.js, take a look at the following resources:
+BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_SECRET=your_secret
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Backend (.env)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```env
+PORT=5000
 
-## Deploy on Vercel
+MONGODB_URI=your_mongodb_uri
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+GEMINI_API_KEY=your_gemini_api_key
+GEMINI_MODEL=gemini-2.5-flash-lite
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+```
+
+---
+
+## 🚀 Installation
+
+### Clone Repository
+
+```bash
+git clone https://github.com/yourusername/studymate-ai.git
+```
+
+### Frontend
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+### Backend
+
+```bash
+cd server
+npm install
+npm run dev
+```
+
+---
+
+## 📡 API Endpoints
+
+### Authentication
+
+- POST `/api/auth`
+
+### Resources
+
+- GET `/api/resources`
+- GET `/api/resources/:id`
+- POST `/api/resources`
+- PATCH `/api/resources/:id`
+- DELETE `/api/resources/:id`
+
+### AI
+
+- POST `/api/ai/chat`
+- GET `/api/ai/history`
+- PATCH `/api/ai/history/:id/reaction`
+- DELETE `/api/ai/history/:id`
+- POST `/api/ai/study-plan`
+
+### Dashboard
+
+- GET `/api/dashboard/overview`
+
+---
+
+## 📱 Responsive
+
+- Mobile
+- Tablet
+- Desktop
+
+---
+
+## 🔒 Authentication
+
+- Email & Password
+- Google OAuth
+- Protected Dashboard Routes
+
+---
+
+## 🤖 AI Features
+
+- AI Chat
+- Study Plan Generation
+- Chat History
+- Like / Dislike Responses
+- Delete Conversations
+
+---
+
+## 📸 Screenshots
+
+Add screenshots of:
+
+- Home
+- Explore
+- AI Chat
+- Dashboard
+- Resource Details
+- Profile
+
+---
+
+## 👨‍💻 Author
+
+**Nahid Ahamed Ridoy**
+
+- GitHub: https://github.com/Nahidahamedridoy
+- LinkedIn: https://www.linkedin.com/in/your-linkedin
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
