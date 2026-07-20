@@ -90,7 +90,7 @@ export default function AppFooter() {
             &copy; {new Date().getFullYear()} StudyMate AI Inc. All rights reserved.
           </p>
           <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
-            <span>Designed with ♥️ by StudyMate Team</span>
+            <span>Designed with ♥️ by Nahid Ahamed Ridoy</span>
           </div>
         </div>
       </div>
