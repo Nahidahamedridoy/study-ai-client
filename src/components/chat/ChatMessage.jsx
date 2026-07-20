@@ -29,9 +29,9 @@ export default function ChatMessage({ message, isLast, onRegenerate, onReact }) 
                     : 'bg-gradient-to-br from-primary-500 to-accent-500 shadow-primary-500/20'
             }`}>
                 {isUser ? (
-                    <User size={16} className="text-white" />
+                    <User size={16} className="text-sky-500" />
                 ) : (
-                    <BrainCircuit size={16} className="text-white" />
+                    <BrainCircuit size={16} className="text-sky-500" />
                 )}
             </div>
 
@@ -39,7 +39,7 @@ export default function ChatMessage({ message, isLast, onRegenerate, onReact }) 
             <div className={`max-w-[80%] min-w-0 ${isUser ? 'text-right' : ''}`}>
                 <div className={`inline-block text-left rounded-2xl px-4 py-3 ${
                     isUser
-                        ? 'bg-gradient-to-br from-primary-600 to-primary-500 text-white rounded-tr-md shadow-lg shadow-primary-500/20'
+                        ? 'bg-gradient-to-br from-primary-600 to-primary-500 text-sky-500 rounded-tr-md shadow-lg shadow-primary-500/20'
                         : 'bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-white/5 rounded-tl-md shadow-sm'
                 }`}>
                     {isUser ? (
