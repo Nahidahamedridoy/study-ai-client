@@ -15,8 +15,8 @@ const footerLinks = {
   ],
   social: [
     { name: 'Twitter', href: '#' },
-    { name: 'GitHub', href: '#' },
-    { name: 'Discord', href: '#' },
+    { name: 'GitHub', href: 'https://github.com/Nahidahamedridoy' },
+    { name: 'Discord', href: 'https://discord.gg/nahidahamedridoy' },
   ]
 };
 
