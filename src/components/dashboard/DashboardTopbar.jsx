@@ -3,7 +3,8 @@
 import { usePathname } from 'next/navigation';
 import { Search, Bell, Sun, Moon, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useTheme } from '@/providers/ThemeProvider';
+import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
 
 const ROUTE_LABELS = {
     '/dashboard': 'Overview',
@@ -24,7 +25,15 @@ function getGreeting() {
 
 export default function DashboardTopbar({ user }) {
     const pathname = usePathname();
-    const { theme, toggleTheme } = useTheme();
+    const { theme, setTheme, systemTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const currentTheme = theme === 'system' ? systemTheme : theme;
+    const toggleTheme = () => setTheme(currentTheme === 'dark' ? 'light' : 'dark');
 
     const pathParts = pathname.split('/').filter(Boolean);
     const breadcrumbs = pathParts.map((part, i) => {
@@ -79,14 +88,20 @@ export default function DashboardTopbar({ user }) {
                     </motion.button>
 
                     {/* Theme toggle */}
-                    <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={toggleTheme}
-                        className="p-2.5 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100/60 dark:hover:bg-white/5 transition-colors"
-                    >
-                        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                    </motion.button>
+                    {mounted ? (
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={toggleTheme}
+                            className="p-2.5 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100/60 dark:hover:bg-white/5 transition-colors"
+                        >
+                            {currentTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                        </motion.button>
+                    ) : (
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center">
+                            <span className="w-4 h-4 bg-gray-200 dark:bg-gray-800 rounded-full animate-pulse" />
+                        </div>
+                    )}
 
                     {/* Avatar */}
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white text-xs font-bold shadow-md shadow-primary-500/20 cursor-pointer hover:shadow-lg hover:shadow-primary-500/30 transition-shadow duration-200">

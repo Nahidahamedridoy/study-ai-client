@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { authClient, useSession } from '@/lib/auth-client';
@@ -8,6 +8,7 @@ import Button from '@/components/ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, BrainCircuit } from 'lucide-react';
 import UserDropdown from './UserDropdown';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 const publicNavLinks = [
   { name: 'Home', href: '/' },
@@ -28,6 +29,7 @@ const privateNavLinks = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   
@@ -35,8 +37,18 @@ export default function Navbar() {
 
   const navLinks = session ? privateNavLinks : publicNavLinks;
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <nav className="sticky top-0 z-50 w-full glass">
+    <nav className={`fixed top-0 z-50 w-full transition-all duration-300 ${
+      isScrolled ? 'bg-white/85 dark:bg-gray-950/85 backdrop-blur-md shadow-lg shadow-gray-200/20 dark:shadow-black/20 border-b border-gray-200/50 dark:border-gray-800/50' : 'bg-transparent'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -56,8 +68,8 @@ export default function Navbar() {
                   href={link.href}
                   className={`relative px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                     isActive
-                      ? 'text-primary-600 dark:text-primary-400'
-                      : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
+                      ? 'text-primary-600 dark:text-primary-400 font-semibold'
+                      : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50/50 dark:hover:bg-gray-800/50'
                   }`}
                 >
                   {link.name}
@@ -72,7 +84,8 @@ export default function Navbar() {
               );
             })}
             
-            <div className="flex items-center pl-6 ml-2 border-l border-gray-200 dark:border-gray-800">
+            <div className="flex items-center pl-4 ml-2 border-l border-gray-200 dark:border-gray-800 gap-3">
+                <ThemeToggle />
                 {isPending ? (
                   <div className="w-10 h-10 bg-gray-200 dark:bg-gray-800 animate-pulse rounded-full"></div>
                 ) : session ? (
@@ -91,7 +104,8 @@ export default function Navbar() {
           </div>
 
           {/* Mobile right section */}
-          <div className="flex items-center gap-3 md:hidden">
+          <div className="flex items-center gap-2 md:hidden">
+            <ThemeToggle />
             {isPending ? (
               <div className="w-8 h-8 bg-gray-200 dark:bg-gray-800 animate-pulse rounded-full"></div>
             ) : session ? (
@@ -115,7 +129,7 @@ export default function Navbar() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="md:hidden glass overflow-hidden border-t border-gray-200/50 dark:border-gray-800/50 absolute w-full"
+            className="md:hidden bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl overflow-hidden border-t border-gray-200/50 dark:border-gray-800/50 absolute w-full shadow-2xl"
           >
             <div className="px-4 pt-2 pb-6 space-y-1">
               {navLinks.map((link) => {

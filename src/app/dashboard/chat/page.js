@@ -191,7 +191,7 @@ export default function ChatPage() {
     };
 
     return (
-        <div className="flex h-screen bg-background overflow-hidden relative">
+        <div className="flex h-[100dvh] bg-gray-50 dark:bg-gray-900 overflow-hidden relative">
             {/* Chat Sidebar */}
             <ChatSidebar
                 conversations={conversations}
@@ -228,7 +228,8 @@ export default function ChatPage() {
                 </div>
 
                 {/* Messages or Empty State */}
-                <AnimatePresence mode="wait">
+                <div className="flex-1 overflow-y-auto">
+                    <AnimatePresence mode="wait">
                     {messages.length === 0 ? (
                         <ChatEmpty key="empty" onSuggestion={(s) => {
                             setInput(s);
@@ -245,6 +246,7 @@ export default function ChatPage() {
                         />
                     )}
                 </AnimatePresence>
+                </div>
 
                 {/* Input Area Inlined */}
                 <div className="border-t border-gray-100/80 dark:border-white/5 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl">

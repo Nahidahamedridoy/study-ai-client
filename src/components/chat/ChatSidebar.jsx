@@ -86,7 +86,7 @@ export default function ChatSidebar({
                         </div>
                         <button
                             onClick={onToggle}
-                            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors lg:flex hidden"
+                            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors flex"
                         >
                             <PanelLeftClose size={16} />
                         </button>

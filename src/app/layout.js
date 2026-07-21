@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "@/components/layout/Navbar";
 import AppFooter from "@/components/layout/AppFooter";
 import QueryProvider from "@/providers/QueryProvider";
+import ThemeProvider from "@/providers/ThemeProvider";
 import DashboardLayoutWrapper from "@/components/dashboard/DashboardLayoutWrapper";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
@@ -27,11 +28,13 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-gray-50 dark:bg-gray-900">
-        <QueryProvider>
-          <Toaster position="top-center" />
-          <DashboardLayoutWrapper>{children}</DashboardLayoutWrapper>
-        </QueryProvider>
+      <body className="min-h-full flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <QueryProvider>
+            <Toaster position="top-center" />
+            <DashboardLayoutWrapper>{children}</DashboardLayoutWrapper>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
